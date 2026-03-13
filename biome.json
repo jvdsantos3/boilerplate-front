@@ -13,7 +13,8 @@
 			".vite",
 			"**/*.min.js",
 			"coverage",
-			"tsconfig*.json"
+			"tsconfig*.json",
+			"route-tree.gen.ts"
 		]
 	},
 	"formatter": {
