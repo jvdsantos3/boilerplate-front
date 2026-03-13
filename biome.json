@@ -35,6 +35,10 @@
 			},
 			"style": {
 				"noNonNullAssertion": "off"
+			},
+			"a11y": {
+				"useAltText": "error",
+				"useKeyWithClickEvents": "warn"
 			}
 		}
 	},
