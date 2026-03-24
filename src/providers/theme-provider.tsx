@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import type { ReactNode } from 'react'
 
 type ThemeProviderProps = {
 	children: ReactNode
