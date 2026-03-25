@@ -1,4 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from '@tanstack/react-router'
 import { type FormEvent, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -12,18 +17,55 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getAccessToken, setAccessToken } from '@/lib/auth'
+import { api, getApiErrorMessage } from '@/lib/http'
+import { safeInternalPath } from '@/lib/safe-redirect'
+
+type SignInSearch = { redirect?: string }
 
 export const Route = createFileRoute('/sign-in')({
+	validateSearch: (raw: Record<string, unknown>): SignInSearch => ({
+		redirect: typeof raw.redirect === 'string' ? raw.redirect : undefined,
+	}),
+	beforeLoad: ({ search }) => {
+		if (getAccessToken()) {
+			throw redirect({ to: safeInternalPath(search.redirect) })
+		}
+	},
 	component: SignInPage,
 })
 
 function SignInPage() {
+	const navigate = useNavigate()
+	const search = Route.useSearch()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [rememberMe, setRememberMe] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+	const [submitting, setSubmitting] = useState(false)
 
-	function handleSubmit(e: FormEvent) {
+	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
+		setError(null)
+		setSubmitting(true)
+		try {
+			const { data } = await api.post<{ accessToken: string }>('/sessions', {
+				email,
+				password,
+				rememberMe,
+			})
+			setAccessToken(data.accessToken)
+			const target = safeInternalPath(search.redirect)
+			if (target === '/sign-in') {
+				await navigate({ to: '/' })
+			} else {
+				await navigate({ to: target })
+			}
+		} catch (err) {
+			setError(getApiErrorMessage(err))
+		} finally {
+			setSubmitting(false)
+		}
 	}
 
 	return (
@@ -36,7 +78,12 @@ function SignInPage() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form className="space-y-4" onSubmit={handleSubmit}>
+					<form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
+						{error ? (
+							<p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-destructive text-sm">
+								{error}
+							</p>
+						) : null}
 						<div className="space-y-2">
 							<Label htmlFor="sign-in-email">E-mail</Label>
 							<Input
@@ -84,8 +131,13 @@ function SignInPage() {
 								Esqueceu sua senha?
 							</Link>
 						</div>
-						<Button className="w-full" size="lg" type="submit">
-							Entrar
+						<Button
+							className="w-full"
+							disabled={submitting}
+							size="lg"
+							type="submit"
+						>
+							{submitting ? 'Entrando…' : 'Entrar'}
 						</Button>
 					</form>
 					<div className="relative my-6">

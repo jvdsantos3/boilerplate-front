@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { type FormEvent, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { api, getApiErrorMessage } from '@/lib/http'
 import {
 	Card,
 	CardContent,
@@ -18,9 +19,27 @@ export const Route = createFileRoute('/forgot-password')({
 
 function ForgotPasswordPage() {
 	const [email, setEmail] = useState('')
+	const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+	const [message, setMessage] = useState<string | null>(null)
+	const [submitting, setSubmitting] = useState(false)
 
-	function handleSubmit(e: FormEvent) {
+	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
+		setStatus('idle')
+		setMessage(null)
+		setSubmitting(true)
+		try {
+			await api.post('/password/forgot', { email })
+			setStatus('success')
+			setMessage(
+				'Se existir uma conta para este e-mail, enviaremos instrucoes em instantes.',
+			)
+		} catch (err) {
+			setStatus('error')
+			setMessage(getApiErrorMessage(err))
+		} finally {
+			setSubmitting(false)
+		}
 	}
 
 	return (
@@ -33,7 +52,18 @@ function ForgotPasswordPage() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form className="space-y-4" onSubmit={handleSubmit}>
+					<form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
+						{message ? (
+							<p
+								className={
+									status === 'error'
+										? 'rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-destructive text-sm'
+										: 'rounded-md border border-border bg-muted/40 px-3 py-2 text-sm'
+								}
+							>
+								{message}
+							</p>
+						) : null}
 						<div className="space-y-2">
 							<Label htmlFor="forgot-password-email">E-mail</Label>
 							<Input
@@ -47,8 +77,13 @@ function ForgotPasswordPage() {
 								value={email}
 							/>
 						</div>
-						<Button className="w-full" size="lg" type="submit">
-							Enviar link de recuperacao
+						<Button
+							className="w-full"
+							disabled={submitting}
+							size="lg"
+							type="submit"
+						>
+							{submitting ? 'Enviando…' : 'Enviar link de recuperacao'}
 						</Button>
 					</form>
 				</CardContent>

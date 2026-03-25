@@ -2,6 +2,10 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## API (admin-eid) e CORS
+
+O front usa `VITE_API_URL` (veja `.env.example`) e envia cookies com `credentials: true`. No **admin-eid**, `CORS_ORIGIN` deve ser a **origem exata** do Vite (ex.: `http://localhost:5173`), não `*`: com `*` o Nest usa `Access-Control-Allow-Origin: *` sem credenciais e o navegador **bloqueia** o cookie de refresh — aparecem erros de CORS em `POST /sessions` e **401** em `POST /sessions/refresh` (cookie nunca chega). Lista separada por vírgula para vários ambientes.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
