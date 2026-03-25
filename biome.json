@@ -6,6 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
+		"ignoreUnknown": true,
 		"includes": [
 			"**",
 			"!!**/dist",
@@ -19,24 +20,14 @@
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineWidth": 100
-	},
-	"assist": {
-		"enabled": true,
-		"actions": {
-			"source": {
-				"organizeImports": "on"
-			}
-		}
+		"indentStyle": "tab"
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"useExhaustiveDependencies": "warn"
+				"noUnusedImports": "error"
 			},
 			"style": {
 				"noNonNullAssertion": "off",
@@ -54,9 +45,12 @@
 			"semicolons": "asNeeded"
 		}
 	},
-	"css": {
-		"parser": {
-			"tailwindDirectives": true
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
 		}
 	}
 }
