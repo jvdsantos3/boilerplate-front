@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './pages/__root'
+import { Route as SignInLinkRouteImport } from './pages/sign-in-link'
 import { Route as SignInRouteImport } from './pages/sign-in'
 import { Route as ForgotPasswordRouteImport } from './pages/forgot-password'
 import { Route as IndexRouteImport } from './pages/index'
 
+const SignInLinkRoute = SignInLinkRouteImport.update({
+  id: '/sign-in-link',
+  path: '/sign-in-link',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-in-link': typeof SignInLinkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-in-link': typeof SignInLinkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/sign-in': typeof SignInRoute
+  '/sign-in-link': typeof SignInLinkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/forgot-password' | '/sign-in'
+  fullPaths: '/' | '/forgot-password' | '/sign-in' | '/sign-in-link'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/forgot-password' | '/sign-in'
-  id: '__root__' | '/' | '/forgot-password' | '/sign-in'
+  to: '/' | '/forgot-password' | '/sign-in' | '/sign-in-link'
+  id: '__root__' | '/' | '/forgot-password' | '/sign-in' | '/sign-in-link'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   SignInRoute: typeof SignInRoute
+  SignInLinkRoute: typeof SignInLinkRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sign-in-link': {
+      id: '/sign-in-link'
+      path: '/sign-in-link'
+      fullPath: '/sign-in-link'
+      preLoaderRoute: typeof SignInLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   SignInRoute: SignInRoute,
+  SignInLinkRoute: SignInLinkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,7 +6,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
@@ -82,24 +81,25 @@ function SignInPage() {
 								className="text-sm font-medium text-primary underline-offset-4 hover:underline"
 								to="/forgot-password"
 							>
-								Esqueci minha senha
+								Esqueceu sua senha?
 							</Link>
 						</div>
 						<Button className="w-full" size="lg" type="submit">
 							Entrar
 						</Button>
 					</form>
+					<div className="relative my-6">
+						<div className="absolute inset-0 flex items-center">
+							<span className="w-full border-border border-t" />
+						</div>
+						<div className="relative flex justify-center text-xs uppercase">
+							<span className="bg-card px-2 text-muted-foreground">ou</span>
+						</div>
+					</div>
+					<Button asChild className="w-full" variant="outline">
+						<Link to="/sign-in-link">Entrar com link no e-mail</Link>
+					</Button>
 				</CardContent>
-				<CardFooter className="flex-col border-border border-t">
-					<p className="text-center text-sm text-muted-foreground">
-						<Link
-							className="font-medium text-primary underline-offset-4 hover:underline"
-							to="/"
-						>
-							Voltar ao início
-						</Link>
-					</p>
-				</CardFooter>
 			</Card>
 		</div>
 	)
