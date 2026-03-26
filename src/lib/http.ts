@@ -45,6 +45,9 @@ function shouldSkipAuthRefreshOn401(config: {
 	if (path === '/sessions/magic-link') return true
 	if (path === '/sessions/magic-link/verify') return true
 
+	if (path === '/sessions/mfa/verify') return true
+	if (path === '/sessions/mfa/resend') return true
+
 	if (method === 'post' && path === '/sessions') return true
 
 	return false

@@ -16,8 +16,13 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MfaEmailStep } from '@/components/mfa-email-step'
 import { getAccessToken, setAccessToken } from '@/lib/auth'
 import { api, getApiErrorMessage } from '@/lib/http'
+import {
+	isMfaEmailRequired,
+	type SessionLoginResponse,
+} from '@/lib/session-login'
 import { safeInternalPath } from '@/lib/safe-redirect'
 
 type SignInLinkSearch = { token?: string; redirect?: string }
@@ -50,9 +55,10 @@ function SignInLinkPage() {
 	const [submitting, setSubmitting] = useState(false)
 
 	const [consumeState, setConsumeState] = useState<
-		'idle' | 'loading' | 'error'
+		'idle' | 'loading' | 'error' | 'mfa'
 	>('idle')
 	const [consumeError, setConsumeError] = useState<string | null>(null)
+	const [mfaToken, setMfaToken] = useState<string | null>(null)
 	const consumeStarted = useRef(false)
 
 	useEffect(() => {
@@ -66,10 +72,15 @@ function SignInLinkPage() {
 
 		void (async () => {
 			try {
-				const { data } = await api.post<{ accessToken: string }>(
+				const { data } = await api.post<SessionLoginResponse>(
 					'/sessions/magic-link/verify',
 					{ token, rememberMe: false },
 				)
+				if (isMfaEmailRequired(data)) {
+					setMfaToken(data.mfaToken)
+					setConsumeState('mfa')
+					return
+				}
 				setAccessToken(data.accessToken)
 				const target = safeInternalPath(search.redirect)
 				await navigate({ to: target === '/sign-in-link' ? '/' : target })
@@ -115,6 +126,26 @@ function SignInLinkPage() {
 						</CardContent>
 					</Card>
 				</div>
+			)
+		}
+
+		if (consumeState === 'mfa' && mfaToken) {
+			return (
+				<MfaEmailStep
+					backLabel="Solicitar novo link"
+					mfaToken={mfaToken}
+					onBack={() =>
+						void navigate({
+							to: '/sign-in-link',
+							search: { redirect: search.redirect },
+						})
+					}
+					onMfaTokenChange={setMfaToken}
+					onVerified={async () => {
+						const target = safeInternalPath(search.redirect)
+						await navigate({ to: target === '/sign-in-link' ? '/' : target })
+					}}
+				/>
 			)
 		}
 

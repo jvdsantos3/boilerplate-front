@@ -15,6 +15,7 @@ import { Route as SignInRouteImport } from './pages/sign-in'
 import { Route as ResetPasswordRouteImport } from './pages/reset-password'
 import { Route as ForgotPasswordRouteImport } from './pages/forgot-password'
 import { Route as IndexRouteImport } from './pages/index'
+import { Route as AccountMfaRouteImport } from './pages/account.mfa'
 
 const TesteRoute = TesteRouteImport.update({
   id: '/teste',
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountMfaRoute = AccountMfaRouteImport.update({
+  id: '/account/mfa',
+  path: '/account/mfa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-in-link': typeof SignInLinkRoute
   '/teste': typeof TesteRoute
+  '/account/mfa': typeof AccountMfaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-in-link': typeof SignInLinkRoute
   '/teste': typeof TesteRoute
+  '/account/mfa': typeof AccountMfaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-in-link': typeof SignInLinkRoute
   '/teste': typeof TesteRoute
+  '/account/mfa': typeof AccountMfaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-in-link'
     | '/teste'
+    | '/account/mfa'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-in-link'
     | '/teste'
+    | '/account/mfa'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-in-link'
     | '/teste'
+    | '/account/mfa'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +118,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignInLinkRoute: typeof SignInLinkRoute
   TesteRoute: typeof TesteRoute
+  AccountMfaRoute: typeof AccountMfaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/mfa': {
+      id: '/account/mfa'
+      path: '/account/mfa'
+      fullPath: '/account/mfa'
+      preLoaderRoute: typeof AccountMfaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignInLinkRoute: SignInLinkRoute,
   TesteRoute: TesteRoute,
+  AccountMfaRoute: AccountMfaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

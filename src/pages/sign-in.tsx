@@ -17,8 +17,13 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MfaEmailStep } from '@/components/mfa-email-step'
 import { getAccessToken, setAccessToken } from '@/lib/auth'
 import { api, getApiErrorMessage } from '@/lib/http'
+import {
+	isMfaEmailRequired,
+	type SessionLoginResponse,
+} from '@/lib/session-login'
 import { safeInternalPath } from '@/lib/safe-redirect'
 
 type SignInSearch = { redirect?: string }
@@ -43,29 +48,55 @@ function SignInPage() {
 	const [rememberMe, setRememberMe] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [submitting, setSubmitting] = useState(false)
+	const [step, setStep] = useState<'credentials' | 'mfa'>('credentials')
+	const [mfaToken, setMfaToken] = useState<string | null>(null)
+
+	async function afterAccessTokenSet() {
+		const target = safeInternalPath(search.redirect)
+		if (target === '/sign-in') {
+			await navigate({ to: '/' })
+		} else {
+			await navigate({ to: target })
+		}
+	}
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
 		setError(null)
 		setSubmitting(true)
 		try {
-			const { data } = await api.post<{ accessToken: string }>('/sessions', {
+			const { data } = await api.post<SessionLoginResponse>('/sessions', {
 				email,
 				password,
 				rememberMe,
 			})
-			setAccessToken(data.accessToken)
-			const target = safeInternalPath(search.redirect)
-			if (target === '/sign-in') {
-				await navigate({ to: '/' })
-			} else {
-				await navigate({ to: target })
+			if (isMfaEmailRequired(data)) {
+				setMfaToken(data.mfaToken)
+				setStep('mfa')
+				return
 			}
+			setAccessToken(data.accessToken)
+			await afterAccessTokenSet()
 		} catch (err) {
 			setError(getApiErrorMessage(err))
 		} finally {
 			setSubmitting(false)
 		}
+	}
+
+	if (step === 'mfa' && mfaToken) {
+		return (
+			<MfaEmailStep
+				backLabel="Voltar ao login"
+				mfaToken={mfaToken}
+				onBack={() => {
+					setStep('credentials')
+					setMfaToken(null)
+				}}
+				onMfaTokenChange={setMfaToken}
+				onVerified={() => void afterAccessTokenSet()}
+			/>
+		)
 	}
 
 	return (
