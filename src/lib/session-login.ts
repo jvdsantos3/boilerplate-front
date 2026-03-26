@@ -1,4 +1,3 @@
-/** Resposta de POST /sessions ou POST /sessions/magic-link/verify quando MFA por e-mail está ativo. */
 export type SessionLoginResponse =
 	| { accessToken: string; mfaRequired?: false }
 	| { mfaRequired: true; mfaToken: string }
